@@ -15,7 +15,7 @@ const ProgramProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
     const [program, setProgram] = useState<Program<Vesting> | null>(null);
     const wallet = useAnchorWallet();
     const programID = new PublicKey(idl.metadata.address);
-    const tokenMint = new PublicKey("9HBACuCcKar38F6jAawhrAGMD4mWiSHfD6q3gXWNAp5X");
+    const tokenMint = new PublicKey("FZ5bAZV3EDas8jbzaWDfQb46ESu6ah48fa8Msjgsh3CZ");
   
     useEffect(() => {
       const setupProgram = async () => {

@@ -60,7 +60,7 @@
       ],
       "args": [
         { "name": "dataBump", "type": "u8" },
-        { "name": "escrowBump", "type": "u8" }
+        { "name": "walletBump", "type": "u8" }
       ]
     }
   ],
@@ -115,8 +115,8 @@
       "msg": "Beneficiary does not exist in account"
     }
   ],
-
   "metadata": {
-    "address": "5826KTAS3tk1MbdjXTGZZkMaDrFD6Qiq6zaZfsi62Qc7"
+    "address": "4asnNzuzbKCvxFyNEsSDhVSzbPaXLuNTyjKN7RDq6SnT"
   }
 }
+

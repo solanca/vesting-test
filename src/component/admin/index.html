@@ -1,0 +1,364 @@
+<div role="list" class="xterm-accessibility-tree">
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="1"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    GNU nano 5.4 shuffleex.com
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="2"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="3"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="4"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    server {
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="5"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    listen 443 ssl;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="6"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    listen [::]:443 ssl;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="7"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    server_name hubleed.com www.hubleed.com;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="8"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="9"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    ssl_certificate /etc/letsencrypt/live/www.shuffleex.com/fullchain.pem; #
+    Pa&gt;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="10"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    ssl_certificate_key /etc/letsencrypt/live/www.shuffleex.com/privkey.pem; #
+    &gt;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="11"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="12"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="13"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    root /var/www/playX/ShuffleExchange/frontend/build;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="14"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    index index.html;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="15"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="16"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    location / {
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="17"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    try_files $uri $uri/ /index.html;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="18"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    }
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="19"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    location /api {
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="20"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    proxy_pass http://localhost:5003; # Forward requests to Node.js backend
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="21"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    proxy_http_version 1.1;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="22"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    proxy_set_header Upgrade $http_upgrade;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="23"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    proxy_set_header Connection 'upgrade';
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="24"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    proxy_set_header Host $host;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="25"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    proxy_cache_bypass $http_upgrade;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="26"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    proxy_set_header X-Real-IP $remote_addr;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="27"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="28"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    [ Read 39 lines ]
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="29"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    ^G Help ^O Write Out ^W Where Is ^K Cut ^T Execute ^C Location
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="30"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    ^X Exit ^R Read File ^\ Replace ^U Paste ^J Justify ^_ Go To Line
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="31"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="32"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="33"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="34"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="35"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="36"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="37"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="38"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="39"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+  <div
+    role="listitem"
+    tabindex="-1"
+    aria-posinset="40"
+    aria-setsize="40"
+    style="height: 18px"
+  >
+    &nbsp;
+  </div>
+</div>
