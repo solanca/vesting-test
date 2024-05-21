@@ -1,6 +1,8 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { BN } from "@project-serum/anchor";
 
+export const merkleRoot = '8dcf33b21872248ddc6725bc36d4c30cef66887337630834f44d638ef4bdd497'
+
 export const beneficiaries = [
   {
     key: Keypair.generate().publicKey,

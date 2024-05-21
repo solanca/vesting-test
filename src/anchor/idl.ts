@@ -14,10 +14,6 @@ export type Vesting = {
         { "name": "tokenProgram", "isMut": false, "isSigner": false }
       ],
       "args": [
-        {
-          "name": "beneficiaries",
-          "type": { "vec": { "defined": "Beneficiary" } }
-        },
         { "name": "amount", "type": "u64" },
         { "name": "decimals", "type": "u8" },
         { "name": "launchDay", "type": "i64" }
@@ -33,20 +29,6 @@ export type Vesting = {
       "args": [{ "name": "newLaunchDay", "type": "i64" }]
     },
     {
-      "name": "addBeneficiaries",
-      "accounts": [
-        { "name": "dataAccount", "isMut": true, "isSigner": false },
-        { "name": "initializer", "isMut": true, "isSigner": true },
-        { "name": "tokenMint", "isMut": false, "isSigner": false }
-      ],
-      "args": [
-        {
-          "name": "newBeneficiaries",
-          "type": { "vec": { "defined": "Beneficiary" } }
-        }
-      ]
-    },
-    {
       "name": "claim",
       "accounts": [
         { "name": "dataAccount", "isMut": true, "isSigner": false },
@@ -60,7 +42,10 @@ export type Vesting = {
       ],
       "args": [
         { "name": "dataBump", "type": "u8" },
-        { "name": "escrowBump", "type": "u8" }
+        { "name": "walletBump", "type": "u8" },
+        { "name": "allocatedTokens", "type": "u64" },
+        { "name": "claimedTokens", "type": "u64" },
+        { "name": "lastClaimTime", "type": "i64" }
       ]
     }
   ],
@@ -74,26 +59,8 @@ export type Vesting = {
           { "name": "initializer", "type": "publicKey" },
           { "name": "escrowWallet", "type": "publicKey" },
           { "name": "tokenMint", "type": "publicKey" },
-          {
-            "name": "beneficiaries",
-            "type": { "vec": { "defined": "Beneficiary" } }
-          },
           { "name": "decimals", "type": "u8" },
           { "name": "launchDay", "type": "i64" }
-        ]
-      }
-    }
-  ],
-  "types": [
-    {
-      "name": "Beneficiary",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          { "name": "key", "type": "publicKey" },
-          { "name": "allocatedTokens", "type": "u64" },
-          { "name": "claimedTokens", "type": "u64" },
-          { "name": "lastClaimTime", "type": "i64" }
         ]
       }
     }
@@ -111,18 +78,34 @@ export type Vesting = {
     },
     {
       "code": 6002,
-      "name": "BeneficiaryNotFound",
-      "msg": "Beneficiary does not exist in account"
+      "name": "InvalidMerkleProof",
+      "msg": "Invalid Merkle Proof"
     }
   ],
 
   "metadata": {
-    "address": "5826KTAS3tk1MbdjXTGZZkMaDrFD6Qiq6zaZfsi62Qc7"
+    "address": "9nHgnCtHBLKEzvsst8mVBtdQKfe8ZdiFNspegdbGgY1i"
   }
 }
 
 
-export const IDL: Vesting = {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const IDL: Vesting ={
   "version": "0.1.0",
   "name": "vesting",
   "instructions": [
@@ -138,10 +121,6 @@ export const IDL: Vesting = {
         { "name": "tokenProgram", "isMut": false, "isSigner": false }
       ],
       "args": [
-        {
-          "name": "beneficiaries",
-          "type": { "vec": { "defined": "Beneficiary" } }
-        },
         { "name": "amount", "type": "u64" },
         { "name": "decimals", "type": "u8" },
         { "name": "launchDay", "type": "i64" }
@@ -157,20 +136,6 @@ export const IDL: Vesting = {
       "args": [{ "name": "newLaunchDay", "type": "i64" }]
     },
     {
-      "name": "addBeneficiaries",
-      "accounts": [
-        { "name": "dataAccount", "isMut": true, "isSigner": false },
-        { "name": "initializer", "isMut": true, "isSigner": true },
-        { "name": "tokenMint", "isMut": false, "isSigner": false }
-      ],
-      "args": [
-        {
-          "name": "newBeneficiaries",
-          "type": { "vec": { "defined": "Beneficiary" } }
-        }
-      ]
-    },
-    {
       "name": "claim",
       "accounts": [
         { "name": "dataAccount", "isMut": true, "isSigner": false },
@@ -184,7 +149,10 @@ export const IDL: Vesting = {
       ],
       "args": [
         { "name": "dataBump", "type": "u8" },
-        { "name": "escrowBump", "type": "u8" }
+        { "name": "walletBump", "type": "u8" },
+        { "name": "allocatedTokens", "type": "u64" },
+        { "name": "claimedTokens", "type": "u64" },
+        { "name": "lastClaimTime", "type": "i64" }
       ]
     }
   ],
@@ -198,26 +166,8 @@ export const IDL: Vesting = {
           { "name": "initializer", "type": "publicKey" },
           { "name": "escrowWallet", "type": "publicKey" },
           { "name": "tokenMint", "type": "publicKey" },
-          {
-            "name": "beneficiaries",
-            "type": { "vec": { "defined": "Beneficiary" } }
-          },
           { "name": "decimals", "type": "u8" },
           { "name": "launchDay", "type": "i64" }
-        ]
-      }
-    }
-  ],
-  "types": [
-    {
-      "name": "Beneficiary",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          { "name": "key", "type": "publicKey" },
-          { "name": "allocatedTokens", "type": "u64" },
-          { "name": "claimedTokens", "type": "u64" },
-          { "name": "lastClaimTime", "type": "i64" }
         ]
       }
     }
@@ -235,13 +185,27 @@ export const IDL: Vesting = {
     },
     {
       "code": 6002,
-      "name": "BeneficiaryNotFound",
-      "msg": "Beneficiary does not exist in account"
+      "name": "InvalidMerkleProof",
+      "msg": "Invalid Merkle Proof"
     }
   ],
 
   "metadata": {
-    "address": "5826KTAS3tk1MbdjXTGZZkMaDrFD6Qiq6zaZfsi62Qc7"
+    "address": "9nHgnCtHBLKEzvsst8mVBtdQKfe8ZdiFNspegdbGgY1i"
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

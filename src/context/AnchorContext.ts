@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { Program } from '@project-serum/anchor';
 
 import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { Vesting } from '../anchor/idl';
+import { AnchorProvider } from '@coral-xyz/anchor';
 
 interface ProgramContextProps {
   dataAccount: PublicKey | null;
@@ -11,6 +12,8 @@ interface ProgramContextProps {
   escrowWalletPda: PublicKey | null;
   escrowBump: number | null;
   program: Program<Vesting> | null;
+  provider:AnchorProvider|null;
+  connection:Connection|null
 }
 
 export const ProgramContext = createContext<ProgramContextProps>({
@@ -19,6 +22,8 @@ export const ProgramContext = createContext<ProgramContextProps>({
   escrowWalletPda: null,
   escrowBump: null,
   program: null,
+  provider:null,
+  connection:null
 });
 
 export const useProgram = () => useContext(ProgramContext);

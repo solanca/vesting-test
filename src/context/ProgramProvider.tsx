@@ -11,6 +11,8 @@ const ProgramProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
     const [dataBump, setDataBump] = useState<number | null>(null);
     const [escrowWalletPda, setEscrowWalletPda] = useState<PublicKey | null>(null);
     const [escrowBump, setEscrowBump] = useState<number | null>(null);
+    const [anchorProvider,setAnchorProvider] = useState<AnchorProvider|null>(null);
+    const [con,setCon] = useState<Connection|null>(null)
     
     const [program, setProgram] = useState<Program<Vesting> | null>(null);
     const wallet = useAnchorWallet();
@@ -21,6 +23,7 @@ const ProgramProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
       const setupProgram = async () => {
         if (!wallet) return;
         const provider = getProvider();
+        setAnchorProvider(provider)
         //@ts-ignore
         const program = new Program<Vesting>(idl, programID, provider);
         const [dataAccount, dataBump] = await PublicKey.findProgramAddress(
@@ -47,12 +50,13 @@ const ProgramProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
       const connection = new Connection(clusterApiUrl("devnet"), {
         commitment: "processed",
       });
+      setCon(connection);
       return new AnchorProvider(connection, wallet, { commitment: "processed" });
     };
   
     return (
       //@ts-ignore
-      <ProgramContext.Provider value={{ dataAccount, dataBump, escrowWalletPda, escrowBump, program }}>
+      <ProgramContext.Provider value={{ dataAccount, dataBump, escrowWalletPda, escrowBump, program,provider:anchorProvider,connection:con }}>
         {children}
       </ProgramContext.Provider>
     );

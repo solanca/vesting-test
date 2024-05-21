@@ -1,10 +1,11 @@
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
-import { Connection, PublicKey, Keypair, clusterApiUrl } from "@solana/web3.js";
+import { Connection, PublicKey, Keypair, clusterApiUrl, Transaction, ComputeBudgetProgram } from "@solana/web3.js";
 import { web3, BN, utils } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
   BeneficiariesType,
   beneficiaries,
+  merkleRoot,
   updateBeneficiaries,
 } from "../../constant/mock";
 import {
@@ -26,26 +27,29 @@ import {
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toast";
 import { unixTimestampToDatetimeLocal } from "../../utils/js";
+import axios from "axios";
+import MerkleTree from "merkletreejs";
+import keccak256 from "keccak256";
 
 type Props = {};
 
 const tokenMint = new PublicKey("FZ5bAZV3EDas8jbzaWDfQb46ESu6ah48fa8Msjgsh3CZ");
 
 const Admin = (_props: Props) => {
-  const { dataAccount, dataBump, escrowWalletPda, escrowBump, program } =
+  const { dataAccount, dataBump, escrowWalletPda, escrowBump, program,provider,connection } =
     useProgram();
   const [day, setDay] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [recipients, setRecipients] = useState<BeneficiariesType[] | null>();
   const [launchDay, setLaunchDay] = useState<string>("");
+  const [updateMerkle, setUpdateMerkle] = useState<string>("");
   const wallet = useAnchorWallet();
 
   const { connected } = useWallet();
   const sender = wallet?.publicKey;
 
-
   const handleInitialize = async () => {
-    if (!connected && !program) {
+    if (!connected && !program && !dataAccount && !escrowWalletPda) {
       return;
     }
 
@@ -53,27 +57,27 @@ const Admin = (_props: Props) => {
 
     try {
       setLoading(true);
-      //@ts-ignore
-      await program.rpc.initialize(
-        //@ts-ignore
-        beneficiaries,
-        new BN(1000),
-        new BN(9),
-        new BN(Math.floor(Date.now() / 1000)),
-        {
-          accounts: {
-            dataAccount: dataAccount,
-            escrowWallet: escrowWalletPda,
-            walletToWithdrawFrom: new PublicKey(
-              "885FvmgbycQ2RYbggjzqYD6rzZsdVM4ZWFArSoneKvb7"
-            ),
-            tokenMint: tokenMint,
-            sender: sender,
-            systemProgram: web3.SystemProgram.programId,
-            tokenProgram: utils.token.TOKEN_PROGRAM_ID,
-          },
-        }
-      );
+      await program?.methods
+        .initialize(
+          // Array.from(Buffer.from(merkleRoot, "hex")),
+          new BN(1000),
+          new BN(9),
+          new BN(Math.floor(Date.now() / 1000))
+        )
+        .accounts({
+          dataAccount: dataAccount as any,
+          escrowWallet: escrowWalletPda as any,
+          walletToWithdrawFrom: new PublicKey(
+            "885FvmgbycQ2RYbggjzqYD6rzZsdVM4ZWFArSoneKvb7"
+          ),
+          tokenMint: tokenMint,
+          sender: sender,
+          systemProgram: web3.SystemProgram.programId,
+          tokenProgram: utils.token.TOKEN_PROGRAM_ID,
+          //@ts-ignore
+        })
+        .rpc();
+
       console.log("Greeting account created!");
     } catch (error) {
       //@ts-ignore
@@ -193,17 +197,20 @@ const Admin = (_props: Props) => {
       setLoading(false);
     }
   };
-  const addBeneficiaries = async () => {
+  const updateMerkleRoot = async () => {
     try {
+      if (!updateMerkle) {
+        return;
+      }
       setLoading(true);
-      //@ts-ignore
-      await program.rpc.addBeneficiaries(updateBeneficiaries, {
-        accounts: {
-          dataAccount: dataAccount,
-          initializer: sender,
+      const response = await program?.methods
+        .updateMerkleRoot(Array.from(Buffer.from(updateMerkle, "hex")))
+        .accounts({
+          dataAccount: dataAccount as any,
           tokenMint: tokenMint,
-        },
-      });
+        })
+        .rpc();
+      console.log("response==", response);
     } catch (error) {
       console.log(error);
       //@ts-ignore
@@ -216,7 +223,9 @@ const Admin = (_props: Props) => {
   const claimToken = async () => {
     try {
       setLoading(true);
-      if (!sender) return;
+      const transaction = new Transaction();
+      transaction.add(ComputeBudgetProgram.setComputeUnitLimit({units:300000}));
+      if (!sender || !provider || !program || !connection) return;
       const associatedTokenAddress = await getAssociatedTokenAddress(
         tokenMint,
         sender
@@ -224,36 +233,68 @@ const Admin = (_props: Props) => {
 
         // ASSOCIATED_TOKEN_PROGRAM_ID
       );
-      console.log(
-        "acc==",
-        dataBump,
-        escrowBump,
-        associatedTokenAddress.toBase58(),
-        dataAccount?.toBase58(),
-        escrowWalletPda?.toBase58(),
-        sender.toBase58(),
-        tokenMint.toBase58(),
-        utils.token.TOKEN_PROGRAM_ID.toBase58(),
-        ASSOCIATED_TOKEN_PROGRAM_ID.toBase58(),
-        web3.SystemProgram.programId.toBase58()
+
+      const res = await axios.get(
+        `http://localhost:5009/api/get/${sender.toBase58()}`
       );
+
+      
+
+     
       //@ts-ignore
-      const response = await program?.rpc.claim(dataBump, escrowBump, {
-        accounts: {
-          dataAccount: dataAccount,
-          escrowWallet: escrowWalletPda,
-          sender: sender,
-          tokenMint: tokenMint,
-          walletToDepositTo: associatedTokenAddress,
-          systemProgram: web3.SystemProgram.programId,
-          tokenProgram: utils.token.TOKEN_PROGRAM_ID,
-          associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-        },
-      });
-      console.log("repo==", response);
+      if (res.data) {
+        console.log("res==", res.data.allocatedTokens);
+        let allocatedTokens = new BN(res.data.allocatedTokens)
+        let claimedTokens = new BN(res.data.claimedTokens)
+        let lastClaimTime = new BN(res.data.lastClaimTime)
+
+ 
+        const response = await program?.methods
+          .claim(
+            dataBump as number,
+            escrowBump as number,
+            // proof,
+            // sender,
+            allocatedTokens,
+            claimedTokens,
+            lastClaimTime
+          )
+          .accounts({
+            dataAccount: dataAccount as any,
+            escrowWallet: escrowWalletPda as any,
+            sender: sender,
+            tokenMint: tokenMint,
+            walletToDepositTo: associatedTokenAddress,
+            systemProgram: web3.SystemProgram.programId,
+            tokenProgram: utils.token.TOKEN_PROGRAM_ID,
+            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+          })
+          .rpc();
+        console.log("repo==", response);
+
+        const resp = await axios.get(`http://localhost:5009/api/claimed/${response}`);
+      }
+      // const response = await program?.rpc.claim(dataBump, escrowBump, {
+      //   accounts: {
+      //     dataAccount: dataAccount,
+      //     escrowWallet: escrowWalletPda,
+      //     sender: sender,
+      //     tokenMint: tokenMint,
+      //     walletToDepositTo: associatedTokenAddress,
+      //     systemProgram: web3.SystemProgram.programId,
+      //     tokenProgram: utils.token.TOKEN_PROGRAM_ID,
+      //     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      //   },
+      // });
     } catch (error) {
       //@ts-ignore
-      toast.error(error.message);
+      // if (error.response.data) {
+      //   //@ts-ignore
+      //   toast.error(error.response.data);
+      // } else {
+        //@ts-ignore
+        // toast.error(error.message);
+      // }
       console.error("claim Failed", error);
     } finally {
       setLoading(false);
@@ -272,7 +313,11 @@ const Admin = (_props: Props) => {
           onChange={(e) => setDay(e.target.value)}
         />
         <button onClick={updateLaunchDay}>update launchDay</button>
-        <button onClick={addBeneficiaries}>update beneficiaries</button>
+        <TextField
+          value={updateMerkle}
+          onChange={(e) => setUpdateMerkle(e.target.value)}
+        />
+        <button onClick={updateMerkleRoot}>update Merkle Root</button>
         <button onClick={claimToken}>claim</button>
         {/* <button onClick={fetchTime}>fetchTime</button> */}
       </Grid>
