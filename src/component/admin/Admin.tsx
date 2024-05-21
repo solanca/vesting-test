@@ -288,13 +288,14 @@ const Admin = (_props: Props) => {
       // });
     } catch (error) {
       //@ts-ignore
-      // if (error.response.data) {
-      //   //@ts-ignore
-      //   toast.error(error.response.data);
-      // } else {
+      
+      if ( error.response?.data) {
         //@ts-ignore
-        // toast.error(error.message);
-      // }
+        toast.error(error.response.data);
+      } else {
+       // @ts-ignore
+        toast.error(error.message);
+      }
       console.error("claim Failed", error);
     } finally {
       setLoading(false);
