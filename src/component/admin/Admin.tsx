@@ -1,13 +1,15 @@
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
-import { Connection, PublicKey, Keypair, clusterApiUrl, Transaction, ComputeBudgetProgram } from "@solana/web3.js";
+import {
+  Connection,
+  PublicKey,
+  Keypair,
+  clusterApiUrl,
+  Transaction,
+  ComputeBudgetProgram,
+} from "@solana/web3.js";
 import { web3, BN, utils } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
-import {
-  BeneficiariesType,
-  beneficiaries,
-  merkleRoot,
-  updateBeneficiaries,
-} from "../../constant/mock";
+import { BeneficiariesType } from "../../constant/mock";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
@@ -28,20 +30,27 @@ import {
 import { ToastContainer, toast } from "react-toast";
 import { unixTimestampToDatetimeLocal } from "../../utils/js";
 import axios from "axios";
-import MerkleTree from "merkletreejs";
-import keccak256 from "keccak256";
 
 type Props = {};
 
 const tokenMint = new PublicKey("FZ5bAZV3EDas8jbzaWDfQb46ESu6ah48fa8Msjgsh3CZ");
 
 const Admin = (_props: Props) => {
-  const { dataAccount, dataBump, escrowWalletPda, escrowBump, program,provider,connection } =
-    useProgram();
+  const {
+    dataAccount,
+    dataBump,
+    escrowWalletPda,
+    escrowBump,
+    program,
+    provider,
+    connection,
+  } = useProgram();
   const [day, setDay] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [recipients, setRecipients] = useState<BeneficiariesType[] | null>();
   const [launchDay, setLaunchDay] = useState<string>("");
+  const [amount, setAmount] = useState<number>(1000);
+
   const [updateMerkle, setUpdateMerkle] = useState<string>("");
   const wallet = useAnchorWallet();
 
@@ -60,7 +69,7 @@ const Admin = (_props: Props) => {
       await program?.methods
         .initialize(
           // Array.from(Buffer.from(merkleRoot, "hex")),
-          new BN(1000),
+          new BN(amount),
           new BN(9),
           new BN(Math.floor(Date.now() / 1000))
         )
@@ -197,34 +206,14 @@ const Admin = (_props: Props) => {
       setLoading(false);
     }
   };
-  const updateMerkleRoot = async () => {
-    try {
-      if (!updateMerkle) {
-        return;
-      }
-      setLoading(true);
-      const response = await program?.methods
-        .updateMerkleRoot(Array.from(Buffer.from(updateMerkle, "hex")))
-        .accounts({
-          dataAccount: dataAccount as any,
-          tokenMint: tokenMint,
-        })
-        .rpc();
-      console.log("response==", response);
-    } catch (error) {
-      console.log(error);
-      //@ts-ignore
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const claimToken = async () => {
     try {
       setLoading(true);
       const transaction = new Transaction();
-      transaction.add(ComputeBudgetProgram.setComputeUnitLimit({units:300000}));
+      transaction.add(
+        ComputeBudgetProgram.setComputeUnitLimit({ units: 300000 })
+      );
       if (!sender || !provider || !program || !connection) return;
       const associatedTokenAddress = await getAssociatedTokenAddress(
         tokenMint,
@@ -238,23 +227,18 @@ const Admin = (_props: Props) => {
         `http://localhost:5009/api/get/${sender.toBase58()}`
       );
 
-      
-
-     
       //@ts-ignore
       if (res.data) {
         console.log("res==", res.data.allocatedTokens);
-        let allocatedTokens = new BN(res.data.allocatedTokens)
-        let claimedTokens = new BN(res.data.claimedTokens)
-        let lastClaimTime = new BN(res.data.lastClaimTime)
+        let allocatedTokens = new BN(res.data.allocatedTokens);
+        let claimedTokens = new BN(res.data.claimedTokens);
+        let lastClaimTime = new BN(res.data.lastClaimTime);
 
- 
         const response = await program?.methods
           .claim(
             dataBump as number,
             escrowBump as number,
-            // proof,
-            // sender,
+
             allocatedTokens,
             claimedTokens,
             lastClaimTime
@@ -272,28 +256,18 @@ const Admin = (_props: Props) => {
           .rpc();
         console.log("repo==", response);
 
-        const resp = await axios.get(`http://localhost:5009/api/claimed/${response}`);
+        const resp = await axios.get(
+          `http://localhost:5009/api/claimed/${response}`
+        );
       }
-      // const response = await program?.rpc.claim(dataBump, escrowBump, {
-      //   accounts: {
-      //     dataAccount: dataAccount,
-      //     escrowWallet: escrowWalletPda,
-      //     sender: sender,
-      //     tokenMint: tokenMint,
-      //     walletToDepositTo: associatedTokenAddress,
-      //     systemProgram: web3.SystemProgram.programId,
-      //     tokenProgram: utils.token.TOKEN_PROGRAM_ID,
-      //     associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
-      //   },
-      // });
     } catch (error) {
       //@ts-ignore
-      
-      if ( error.response?.data) {
+
+      if (error.response?.data) {
         //@ts-ignore
         toast.error(error.response.data);
       } else {
-       // @ts-ignore
+        // @ts-ignore
         toast.error(error.message);
       }
       console.error("claim Failed", error);
@@ -305,7 +279,13 @@ const Admin = (_props: Props) => {
   return (
     <>
       <Grid container spacing={2} alignItems={"center"}>
+        <TextField
+          label="lock amount"
+          value={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
+        />
         <button onClick={handleInitialize}>initialize</button>
+
         <button onClick={handleFetch}>fetch</button>
         {/* <button onClick={handleMint}>mint</button> */}
         <TextField
@@ -314,11 +294,7 @@ const Admin = (_props: Props) => {
           onChange={(e) => setDay(e.target.value)}
         />
         <button onClick={updateLaunchDay}>update launchDay</button>
-        <TextField
-          value={updateMerkle}
-          onChange={(e) => setUpdateMerkle(e.target.value)}
-        />
-        <button onClick={updateMerkleRoot}>update Merkle Root</button>
+
         <button onClick={claimToken}>claim</button>
         {/* <button onClick={fetchTime}>fetchTime</button> */}
       </Grid>
