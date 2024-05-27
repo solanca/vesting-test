@@ -1,6 +1,4 @@
-import { useMemo, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { useMemo } from "react";
 import "./App.css";
 import Header from "./component/header";
 import Admin from "./component/admin/Admin";
@@ -12,7 +10,6 @@ import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import "@solana/wallet-adapter-react-ui/styles.css";
-import NewToken from "./component/newtoken/NewToken";
 import ProgramProvider from "./context/ProgramProvider";
 function App() {
   const network = WalletAdapterNetwork.Devnet;

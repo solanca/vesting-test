@@ -1,8 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext } from 'react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { Program } from '@project-serum/anchor';
 
-import { useAnchorWallet } from '@solana/wallet-adapter-react';
 import { Vesting } from '../anchor/idl';
 import { AnchorProvider } from '@coral-xyz/anchor';
 

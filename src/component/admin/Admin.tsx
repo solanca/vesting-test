@@ -1,9 +1,6 @@
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import {
-  Connection,
   PublicKey,
-  Keypair,
-  clusterApiUrl,
   Transaction,
   ComputeBudgetProgram,
 } from "@solana/web3.js";
@@ -51,7 +48,6 @@ const Admin = (_props: Props) => {
   const [launchDay, setLaunchDay] = useState<string>("");
   const [amount, setAmount] = useState<number>(1000);
 
-  const [updateMerkle, setUpdateMerkle] = useState<string>("");
   const wallet = useAnchorWallet();
 
   const { connected } = useWallet();
@@ -167,7 +163,6 @@ const Admin = (_props: Props) => {
       //@ts-ignore
 
       console.log("info==", info, new PublicKey(info.escrowWallet).toBase58());
-      const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
       setRecipients(info.beneficiaries as BeneficiariesType[]);
 
@@ -224,7 +219,7 @@ const Admin = (_props: Props) => {
       );
 
       const res = await axios.get(
-        `http://localhost:5009/api/get/${sender.toBase58()}`
+        `${import.meta.env.VITE_BACKEND_URL}/get/${sender.toBase58()}`
       );
 
       //@ts-ignore
@@ -257,7 +252,7 @@ const Admin = (_props: Props) => {
         console.log("repo==", response);
 
         const resp = await axios.get(
-          `http://localhost:5009/api/claimed/${response}`
+          `${import.meta.env.VITE_BACKEND_URL}/claimed/${response}`
         );
         console.log('resp==',resp.data);
       }
