@@ -6,7 +6,6 @@ import {
 } from "@solana/web3.js";
 import { web3, BN, utils } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { BeneficiariesType } from "../../constant/mock";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
@@ -17,10 +16,12 @@ import {
 import { useProgram } from "../../context/AnchorContext";
 import { useState } from "react";
 import {
+  Button,
   CircularProgress,
   Dialog,
   Divider,
   Grid,
+  InputAdornment,
   TextField,
   Typography,
 } from "@mui/material";
@@ -43,9 +44,10 @@ const Admin = (_props: Props) => {
     connection,
   } = useProgram();
   const [day, setDay] = useState<string>("");
+  const [period,setPeriod] = useState<string>("7");
   const [loading, setLoading] = useState<boolean>(false);
-  const [recipients, setRecipients] = useState<BeneficiariesType[] | null>();
   const [launchDay, setLaunchDay] = useState<string>("");
+  const [claimPeriod, setClaimPeriod] = useState<number>(0);
   const [amount, setAmount] = useState<number>(1000);
 
   const wallet = useAnchorWallet();
@@ -67,7 +69,8 @@ const Admin = (_props: Props) => {
           // Array.from(Buffer.from(merkleRoot, "hex")),
           new BN(amount),
           new BN(9),
-          new BN(Math.floor(Date.now() / 1000))
+          new BN(Math.floor(Date.now() / 1000)),
+          new BN(60*60*24*7) //a week
         )
         .accounts({
           dataAccount: dataAccount as any,
@@ -158,16 +161,17 @@ const Admin = (_props: Props) => {
     if (!program) return;
     try {
       setLoading(true);
-      //@ts-ignore
-      const info = await program.account.dataAccount.fetch(dataAccount);
+    //@ts-ignore
+      const info = await program.account.dataAccount.fetch(dataAccount as any);
       //@ts-ignore
 
       console.log("info==", info, new PublicKey(info.escrowWallet).toBase58());
 
-      setRecipients(info.beneficiaries as BeneficiariesType[]);
+      // setRecipients(info.beneficiaries as BeneficiariesType[]);
 
       // console.log("info==", info.nowTime.toNumber());
       setLaunchDay(unixTimestampToDatetimeLocal(info.launchDay.toNumber()));
+      setClaimPeriod(info.claimPeriod.toNumber() /(60*60*24))
       // console.log("info==", escrowWalletPda?.toBase58(),escrowWalletInfo);
     } catch (error) {
       console.log("err==", error);
@@ -195,6 +199,22 @@ const Admin = (_props: Props) => {
           tokenMint: tokenMint,
         },
       });
+      console.log("ress===", res);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+  const updateClaimPeriod = async () => {
+    try {
+      setLoading(true);
+      
+      const res = await program?.methods.updateClaimPeriod(new BN(Number(period)*60*60*24)).accounts({
+        dataAccount:dataAccount as any,
+        initializer:sender,
+        tokenMint:tokenMint
+      }).rpc();
+      
       console.log("ress===", res);
     } catch (error) {
     } finally {
@@ -274,76 +294,43 @@ const Admin = (_props: Props) => {
 
   return (
     <>
-      <Grid container spacing={2} alignItems={"center"}>
+      <Grid container columnGap={2} alignItems={"center"}>
         <TextField
           label="lock amount"
           value={amount}
           onChange={(e) => setAmount(Number(e.target.value))}
         />
-        <button onClick={handleInitialize}>initialize</button>
+        <Button variant="contained" onClick={handleInitialize}>initialize</Button>
 
-        <button onClick={handleFetch}>fetch</button>
+        
         {/* <button onClick={handleMint}>mint</button> */}
         <TextField
           value={day}
           type="datetime-local"
           onChange={(e) => setDay(e.target.value)}
         />
-        <button onClick={updateLaunchDay}>update launchDay</button>
+        <Button variant="contained" onClick={updateLaunchDay}>update launchDay</Button>
+        <TextField
+          value={period}
+          type="number"
+          sx={{width:"20ch"}}
+          InputProps={{endAdornment:<InputAdornment position="end">days</InputAdornment>}}
+          onChange={(e) => setPeriod(e.target.value)}
+        />
+        <Button variant="contained" onClick={updateClaimPeriod}>update ClaimPeriod</Button>
 
-        <button onClick={claimToken}>claim</button>
         {/* <button onClick={fetchTime}>fetchTime</button> */}
       </Grid>
       <>
         <Divider sx={{ my: 2 }} />
-        {recipients && (
-          <Grid container flexDirection={"column"}>
-            <Typography variant="h5">beneficiaries list and status</Typography>
-            <Grid item>
-              <Grid container>
-                <Grid item md={3}>
-                  <Typography> Address</Typography>
-                </Grid>
-                <Grid item md={3}>
-                  <Typography>Total token amount</Typography>
-                </Grid>
-                <Grid item md={3}>
-                  <Typography>Claimed token amount</Typography>
-                </Grid>
-                <Grid item md={3}>
-                  <Typography>Last claim time</Typography>
-                </Grid>
-              </Grid>
-            </Grid>
-            {recipients.map((item, index) => (
-              <Grid item key={index}>
-                <Grid container>
-                  <Grid item md={3}>
-                    <Typography noWrap>{item.key.toBase58()}</Typography>
-                  </Grid>
-                  <Grid item md={3}>
-                    <Typography>{item.allocatedTokens.toNumber()}</Typography>
-                  </Grid>
-                  <Grid item md={3}>
-                    <Typography>{item.claimedTokens.toNumber()}</Typography>
-                  </Grid>
-                  <Grid item md={3}>
-                    <Typography>
-                      {item.lastClaimTime.toNumber() == 0
-                        ? 0
-                        : unixTimestampToDatetimeLocal(
-                            item.lastClaimTime.toNumber()
-                          )}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
-            ))}
-          </Grid>
-        )}
+        <Button variant="contained" onClick={handleFetch}>fetch</Button>
         <Typography variant="h6" mt={4}>
           Launch Day:{launchDay}
         </Typography>
+        <Typography variant="h6" mt={4}>
+          Claim Period:{claimPeriod}
+        </Typography>
+        <Button color="secondary" variant="contained" onClick={claimToken}>claim</Button>
       </>
 
       <Dialog

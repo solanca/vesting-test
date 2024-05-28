@@ -16,7 +16,8 @@
       "args": [
         { "name": "amount", "type": "u64" },
         { "name": "decimals", "type": "u8" },
-        { "name": "launchDay", "type": "i64" }
+        { "name": "launchDay", "type": "i64" },
+        { "name": "claimPeriod", "type": "i64" }
       ]
     },
     {
@@ -27,6 +28,15 @@
         { "name": "tokenMint", "isMut": false, "isSigner": false }
       ],
       "args": [{ "name": "newLaunchDay", "type": "i64" }]
+    },
+    {
+      "name": "updateClaimPeriod",
+      "accounts": [
+        { "name": "dataAccount", "isMut": true, "isSigner": false },
+        { "name": "initializer", "isMut": true, "isSigner": true },
+        { "name": "tokenMint", "isMut": false, "isSigner": false }
+      ],
+      "args": [{ "name": "newClaimPeriod", "type": "i64" }]
     },
     {
       "name": "claim",
@@ -60,7 +70,8 @@
           { "name": "escrowWallet", "type": "publicKey" },
           { "name": "tokenMint", "type": "publicKey" },
           { "name": "decimals", "type": "u8" },
-          { "name": "launchDay", "type": "i64" }
+          { "name": "launchDay", "type": "i64" },
+          { "name": "claimPeriod", "type": "i64" }
         ]
       }
     }
@@ -78,15 +89,26 @@
     },
     {
       "code": 6002,
+      "name": "NotLaunchDay",
+      "msg": "The launch day hasn't arrived yet"
+    },
+    {
+      "code": 6003,
+      "name": "NotClaimDay",
+      "msg": "You already claimed, please wait for a week."
+    },
+    {
+      "code": 6004,
       "name": "InvalidMerkleProof",
       "msg": "Invalid Merkle Proof"
     }
   ],
 
   "metadata": {
-    "address": "84C9RuE1zyXvpajoQr1BXFANavByhFcWg1PLz5gz9mzN"
+    "address": "2j7yLGgTcCqMD21xzG2tC7sswtrfpoCX8HebLYT9rShf"
   }
 }
+
 
 
 
