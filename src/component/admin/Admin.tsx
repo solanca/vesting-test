@@ -264,6 +264,7 @@ const Admin = (_props: Props) => {
         .rpc();
         await handleFetch();
     } catch (error) {
+      console.log(error)
     } finally {
       setLoading(false);
     }
@@ -282,6 +283,7 @@ const Admin = (_props: Props) => {
         .rpc();
         await handleFetch();
     } catch (error) {
+      console.log(error)
     } finally {
       setLoading(false);
     }
