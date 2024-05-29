@@ -1,9 +1,5 @@
 import { useAnchorWallet } from "@solana/wallet-adapter-react";
-import {
-  PublicKey,
-  Transaction,
-  ComputeBudgetProgram,
-} from "@solana/web3.js";
+import { PublicKey, Transaction, ComputeBudgetProgram } from "@solana/web3.js";
 import { web3, BN, utils } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
@@ -14,7 +10,7 @@ import {
   // mintTo,
 } from "@solana/spl-token";
 import { useProgram } from "../../context/AnchorContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   CircularProgress,
@@ -22,8 +18,10 @@ import {
   Divider,
   Grid,
   InputAdornment,
+  Skeleton,
   TextField,
   Typography,
+  styled,
 } from "@mui/material";
 import { ToastContainer, toast } from "react-toast";
 import { unixTimestampToDatetimeLocal } from "../../utils/js";
@@ -32,6 +30,10 @@ import axios from "axios";
 type Props = {};
 
 const tokenMint = new PublicKey("FZ5bAZV3EDas8jbzaWDfQb46ESu6ah48fa8Msjgsh3CZ");
+
+const CapitalButton = styled(Button)(() => ({
+  textTransform: "capitalize",
+}));
 
 const Admin = (_props: Props) => {
   const {
@@ -44,13 +46,30 @@ const Admin = (_props: Props) => {
     connection,
   } = useProgram();
   const [day, setDay] = useState<string>("");
-  const [period,setPeriod] = useState<string>("7");
+  const [period, setPeriod] = useState<string>("7");
   const [loading, setLoading] = useState<boolean>(false);
   const [launchDay, setLaunchDay] = useState<string>("");
   const [claimPeriod, setClaimPeriod] = useState<number>(0);
   const [amount, setAmount] = useState<number>(1000);
+  const [claimRateForLaunchDay, setClaimRateForLaunchDay] =
+    useState<string>("15");
+  const [claimRatePerDays, setClaimRatePerDays] = useState<string>("3");
+  const [fetching, setFetching] = useState<boolean>(false);
+
+  const [rateForLaunchDay, setRateForLaunchDay] = useState<number>(0);
+  const [ratePerDays, setRatePerDays] = useState<number>(0);
 
   const wallet = useAnchorWallet();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (provider) {
+        await handleFetch();
+      }
+    };
+
+    fetchData();
+  }, [provider]);
 
   const { connected } = useWallet();
   const sender = wallet?.publicKey;
@@ -70,7 +89,9 @@ const Admin = (_props: Props) => {
           new BN(amount),
           new BN(9),
           new BN(Math.floor(Date.now() / 1000)),
-          new BN(60*60*24*7) //a week
+          new BN(60 * 60 * 24 * 7), //a week
+          new BN(15), //15%
+          new BN(3) //3%
         )
         .accounts({
           dataAccount: dataAccount as any,
@@ -87,6 +108,7 @@ const Admin = (_props: Props) => {
         .rpc();
 
       console.log("Greeting account created!");
+      await handleFetch();
     } catch (error) {
       //@ts-ignore
       toast.error(error.message);
@@ -160,8 +182,8 @@ const Admin = (_props: Props) => {
   const handleFetch = async () => {
     if (!program) return;
     try {
-      setLoading(true);
-    //@ts-ignore
+      setFetching(true);
+      //@ts-ignore
       const info = await program.account.dataAccount.fetch(dataAccount as any);
       //@ts-ignore
 
@@ -171,12 +193,14 @@ const Admin = (_props: Props) => {
 
       // console.log("info==", info.nowTime.toNumber());
       setLaunchDay(unixTimestampToDatetimeLocal(info.launchDay.toNumber()));
-      setClaimPeriod(info.claimPeriod.toNumber() /(60*60*24))
+      setClaimPeriod(info.claimPeriod.toNumber() / (60 * 60 * 24));
+      setRateForLaunchDay(info.claimRateForLaunchDay);
+      setRatePerDays(info.claimRatePerDays);
       // console.log("info==", escrowWalletPda?.toBase58(),escrowWalletInfo);
     } catch (error) {
       console.log("err==", error);
     } finally {
-      setLoading(false);
+      setFetching(false);
     }
   };
 
@@ -200,6 +224,7 @@ const Admin = (_props: Props) => {
         },
       });
       console.log("ress===", res);
+      await handleFetch();
     } catch (error) {
     } finally {
       setLoading(false);
@@ -208,14 +233,54 @@ const Admin = (_props: Props) => {
   const updateClaimPeriod = async () => {
     try {
       setLoading(true);
-      
-      const res = await program?.methods.updateClaimPeriod(new BN(Number(period)*60*60*24)).accounts({
-        dataAccount:dataAccount as any,
-        initializer:sender,
-        tokenMint:tokenMint
-      }).rpc();
-      
+
+      const res = await program?.methods
+        .updateClaimPeriod(new BN(Number(period) * 60 * 60 * 24))
+        .accounts({
+          dataAccount: dataAccount as any,
+          initializer: sender,
+          tokenMint: tokenMint,
+        })
+        .rpc();
+
       console.log("ress===", res);
+      await handleFetch();
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+  const updateClaimRateWhenLaunchDay = async () => {
+    try {
+      setLoading(true);
+
+      await program?.methods
+        .updateClaimRateForLaunchday(new BN(Number(claimRateForLaunchDay)))
+        .accounts({
+          dataAccount: dataAccount as any,
+          initializer: sender,
+          tokenMint: tokenMint,
+        })
+        .rpc();
+        await handleFetch();
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  };
+  const updateClaimRatePerDays = async () => {
+    try {
+      setLoading(true);
+
+     await program?.methods
+        .updateClaimRatePerDays(new BN(Number(claimRatePerDays)))
+        .accounts({
+          dataAccount: dataAccount as any,
+          initializer: sender,
+          tokenMint: tokenMint,
+        })
+        .rpc();
+        await handleFetch();
     } catch (error) {
     } finally {
       setLoading(false);
@@ -274,7 +339,7 @@ const Admin = (_props: Props) => {
         const resp = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/claimed/${response}`
         );
-        console.log('resp==',resp.data);
+        console.log("resp==", resp.data);
       }
     } catch (error) {
       //@ts-ignore
@@ -294,44 +359,136 @@ const Admin = (_props: Props) => {
 
   return (
     <>
-      <Grid container columnGap={2} alignItems={"center"}>
-        <TextField
-          label="lock amount"
-          value={amount}
-          onChange={(e) => setAmount(Number(e.target.value))}
-        />
-        <Button variant="contained" onClick={handleInitialize}>initialize</Button>
-
-        
-        {/* <button onClick={handleMint}>mint</button> */}
-        <TextField
-          value={day}
-          type="datetime-local"
-          onChange={(e) => setDay(e.target.value)}
-        />
-        <Button variant="contained" onClick={updateLaunchDay}>update launchDay</Button>
-        <TextField
-          value={period}
-          type="number"
-          sx={{width:"20ch"}}
-          InputProps={{endAdornment:<InputAdornment position="end">days</InputAdornment>}}
-          onChange={(e) => setPeriod(e.target.value)}
-        />
-        <Button variant="contained" onClick={updateClaimPeriod}>update ClaimPeriod</Button>
-
-        {/* <button onClick={fetchTime}>fetchTime</button> */}
+      <Grid container spacing={2} flexDirection="column" alignItems={"center"}>
+        <Grid item>
+          <Grid container columnGap={2}>
+            <TextField
+              label="lock amount"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+            />
+            <CapitalButton variant="contained" onClick={handleInitialize}>
+              initialize
+            </CapitalButton>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container columnGap={2}>
+            <TextField
+              value={day}
+              type="datetime-local"
+              onChange={(e) => setDay(e.target.value)}
+            />
+            <CapitalButton variant="contained" onClick={updateLaunchDay}>
+              update launchDay
+            </CapitalButton>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container columnGap={2}>
+            <TextField
+              value={period}
+              type="number"
+              label="period"
+              // sx={{ width: "20ch" }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">days</InputAdornment>
+                ),
+              }}
+              onChange={(e) => setPeriod(e.target.value)}
+            />
+            <CapitalButton variant="contained" onClick={updateClaimPeriod}>
+              update ClaimPeriod
+            </CapitalButton>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container columnGap={2}>
+            <TextField
+              value={claimRateForLaunchDay}
+              type="number"
+              // sx={{ width: "20ch" }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+              }}
+              onChange={(e) => setClaimRateForLaunchDay(e.target.value)}
+            />
+            <CapitalButton variant="contained" onClick={updateClaimRateWhenLaunchDay}>
+              update claim rate when launch day
+            </CapitalButton>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container columnGap={2}>
+            <TextField
+              value={claimRatePerDays}
+              type="number"
+              // sx={{ width: "20ch" }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+              }}
+              onChange={(e) => setClaimRatePerDays(e.target.value)}
+            />
+            <CapitalButton variant="contained" onClick={updateClaimRatePerDays}>
+              update claim rate per days
+            </CapitalButton>
+          </Grid>
+        </Grid>
       </Grid>
       <>
         <Divider sx={{ my: 2 }} />
-        <Button variant="contained" onClick={handleFetch}>fetch</Button>
-        <Typography variant="h6" mt={4}>
-          Launch Day:{launchDay}
-        </Typography>
-        <Typography variant="h6" mt={4}>
-          Claim Period:{claimPeriod}
-        </Typography>
-        <Button color="secondary" variant="contained" onClick={claimToken}>claim</Button>
+        {provider && (
+          <Grid container spacing={2} flexDirection={"column"} alignItems={"center"}>
+            <Grid item>
+              <Grid container alignItems={"center"}>
+                <Typography variant="h6" mr={3}>Launch Day:</Typography>
+                {fetching ? (
+                  <Skeleton width={30} />
+                ) : (
+                  <Typography variant="h6">{launchDay}</Typography>
+                )}
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Grid container alignItems={"center"}>
+                <Typography variant="h6" mr={3}>Claim Period:</Typography>
+                {fetching ? (
+                  <Skeleton width={30} />
+                ) : (
+                  <Typography variant="h6">{claimPeriod} days</Typography>
+                )}
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Grid container alignItems={"center"}>
+                <Typography variant="h6" mr={3}>Claim Rate when LaunchDay:</Typography>
+                {fetching ? (
+                  <Skeleton width={30} />
+                ) : (
+                  <Typography variant="h6">{rateForLaunchDay}%</Typography>
+                )}
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Grid container alignItems={"center"}>
+                <Typography variant="h6" mr={3}>Claim Rate per Days:</Typography>
+                {fetching ? (
+                  <Skeleton width={30} />
+                ) : (
+                  <Typography variant="h6"> {ratePerDays}%</Typography>
+                )}
+              </Grid>
+            </Grid>
+            {/* <CapitalButton variant="contained" onClick={handleFetch}>
+            fetch
+          </CapitalButton> */}
+          </Grid>
+        )}
       </>
+      <Button color="secondary" variant="contained" onClick={claimToken}>
+        claim
+      </Button>
 
       <Dialog
         open={loading}

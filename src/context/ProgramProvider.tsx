@@ -35,7 +35,7 @@ const ProgramProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
           [Buffer.from("escrow_wallet"), tokenMint.toBuffer()],
           program.programId
         );
-  
+        
         setDataAccount(dataAccount);
         setDataBump(dataBump);
         setEscrowWalletPda(escrowWalletPda);
@@ -48,9 +48,12 @@ const ProgramProvider: React.FC<{ children: React.ReactNode }> = ({ children }) 
   
     const getProvider = () => {
       if (!wallet) return null;
-      const connection = new Connection(clusterApiUrl("devnet"), {
+      const connection = new Connection(import.meta.env.VITE_SOL_RPC_URL ? import.meta.env.VITE_SOL_RPC_URL : clusterApiUrl("devnet"), {
         commitment: "processed",
       });
+      // const connection = new Connection(clusterApiUrl("devnet"), {
+      //   commitment: "processed",
+      // });
       setCon(connection);
       return new AnchorProvider(connection, wallet, { commitment: "processed" });
     };

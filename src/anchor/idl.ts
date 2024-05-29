@@ -17,7 +17,9 @@ export type Vesting = {
         { "name": "amount", "type": "u64" },
         { "name": "decimals", "type": "u8" },
         { "name": "launchDay", "type": "i64" },
-        { "name": "claimPeriod", "type": "i64" }
+        { "name": "claimPeriod", "type": "i64" },
+        { "name": "claimRateForLaunchDay", "type": "u8" },
+        { "name": "claimRatePerDays", "type": "u8" }
       ]
     },
     {
@@ -37,6 +39,24 @@ export type Vesting = {
         { "name": "tokenMint", "isMut": false, "isSigner": false }
       ],
       "args": [{ "name": "newClaimPeriod", "type": "i64" }]
+    },
+    {
+      "name": "updateClaimRatePerDays",
+      "accounts": [
+        { "name": "dataAccount", "isMut": true, "isSigner": false },
+        { "name": "initializer", "isMut": true, "isSigner": true },
+        { "name": "tokenMint", "isMut": false, "isSigner": false }
+      ],
+      "args": [{ "name": "newClaimRate", "type": "u8" }]
+    },
+    {
+      "name": "updateClaimRateForLaunchday",
+      "accounts": [
+        { "name": "dataAccount", "isMut": true, "isSigner": false },
+        { "name": "initializer", "isMut": true, "isSigner": true },
+        { "name": "tokenMint", "isMut": false, "isSigner": false }
+      ],
+      "args": [{ "name": "newClaimRate", "type": "u8" }]
     },
     {
       "name": "claim",
@@ -71,7 +91,9 @@ export type Vesting = {
           { "name": "tokenMint", "type": "publicKey" },
           { "name": "decimals", "type": "u8" },
           { "name": "launchDay", "type": "i64" },
-          { "name": "claimPeriod", "type": "i64" }
+          { "name": "claimPeriod", "type": "i64" },
+          { "name": "claimRateForLaunchDay", "type": "u8" },
+          { "name": "claimRatePerDays", "type": "u8" }
         ]
       }
     }
@@ -95,15 +117,11 @@ export type Vesting = {
     {
       "code": 6003,
       "name": "NotClaimDay",
-      "msg": "You already claimed, please wait for a week."
-    },
-    {
-      "code": 6004,
-      "name": "InvalidMerkleProof",
-      "msg": "Invalid Merkle Proof"
+      "msg": "You already claimed, please wait for more days."
     }
   ]
 }
+
 
 
 
@@ -142,7 +160,9 @@ export const IDL: Vesting ={
         { "name": "amount", "type": "u64" },
         { "name": "decimals", "type": "u8" },
         { "name": "launchDay", "type": "i64" },
-        { "name": "claimPeriod", "type": "i64" }
+        { "name": "claimPeriod", "type": "i64" },
+        { "name": "claimRateForLaunchDay", "type": "u8" },
+        { "name": "claimRatePerDays", "type": "u8" }
       ]
     },
     {
@@ -162,6 +182,24 @@ export const IDL: Vesting ={
         { "name": "tokenMint", "isMut": false, "isSigner": false }
       ],
       "args": [{ "name": "newClaimPeriod", "type": "i64" }]
+    },
+    {
+      "name": "updateClaimRatePerDays",
+      "accounts": [
+        { "name": "dataAccount", "isMut": true, "isSigner": false },
+        { "name": "initializer", "isMut": true, "isSigner": true },
+        { "name": "tokenMint", "isMut": false, "isSigner": false }
+      ],
+      "args": [{ "name": "newClaimRate", "type": "u8" }]
+    },
+    {
+      "name": "updateClaimRateForLaunchday",
+      "accounts": [
+        { "name": "dataAccount", "isMut": true, "isSigner": false },
+        { "name": "initializer", "isMut": true, "isSigner": true },
+        { "name": "tokenMint", "isMut": false, "isSigner": false }
+      ],
+      "args": [{ "name": "newClaimRate", "type": "u8" }]
     },
     {
       "name": "claim",
@@ -196,7 +234,9 @@ export const IDL: Vesting ={
           { "name": "tokenMint", "type": "publicKey" },
           { "name": "decimals", "type": "u8" },
           { "name": "launchDay", "type": "i64" },
-          { "name": "claimPeriod", "type": "i64" }
+          { "name": "claimPeriod", "type": "i64" },
+          { "name": "claimRateForLaunchDay", "type": "u8" },
+          { "name": "claimRatePerDays", "type": "u8" }
         ]
       }
     }
@@ -220,15 +260,11 @@ export const IDL: Vesting ={
     {
       "code": 6003,
       "name": "NotClaimDay",
-      "msg": "You already claimed, please wait for a week."
-    },
-    {
-      "code": 6004,
-      "name": "InvalidMerkleProof",
-      "msg": "Invalid Merkle Proof"
+      "msg": "You already claimed, please wait for more days."
     }
   ]
 }
+
 
 
 
