@@ -262,9 +262,9 @@ const Admin = (_props: Props) => {
           tokenMint: tokenMint,
         })
         .rpc();
-        await handleFetch();
+      await handleFetch();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -273,7 +273,7 @@ const Admin = (_props: Props) => {
     try {
       setLoading(true);
 
-     await program?.methods
+      await program?.methods
         .updateClaimRatePerDays(new BN(Number(claimRatePerDays)))
         .accounts({
           dataAccount: dataAccount as any,
@@ -281,9 +281,9 @@ const Admin = (_props: Props) => {
           tokenMint: tokenMint,
         })
         .rpc();
-        await handleFetch();
+      await handleFetch();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -293,9 +293,13 @@ const Admin = (_props: Props) => {
     try {
       setLoading(true);
       const transaction = new Transaction();
-      transaction.add(
-        ComputeBudgetProgram.setComputeUnitLimit({ units: 300000 })
-      );
+      const PRIORITY_RATE = 1000000;
+      const PRIORITY_FEE_IX = ComputeBudgetProgram.setComputeUnitPrice({
+        microLamports: PRIORITY_RATE,
+      });
+      // transaction.add(
+      //   ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 100 })
+      // );
       if (!sender || !provider || !program || !connection) return;
       const associatedTokenAddress = await getAssociatedTokenAddress(
         tokenMint,
@@ -316,7 +320,7 @@ const Admin = (_props: Props) => {
         let claimedTokens = new BN(res.data.claimedTokens);
         let lastClaimTime = new BN(res.data.lastClaimTime);
 
-        const response = await program?.methods
+        const txInstruction = await program?.methods
           .claim(
             dataBump as number,
             escrowBump as number,
@@ -335,13 +339,40 @@ const Admin = (_props: Props) => {
             tokenProgram: utils.token.TOKEN_PROGRAM_ID,
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           })
-          .rpc();
-        console.log("repo==", response);
+          .instruction();
+        console.log("txInstruction==", txInstruction);
+        transaction.add(txInstruction);
+        transaction.add(PRIORITY_FEE_IX);
+        const { blockhash, lastValidBlockHeight } =
+          await connection.getLatestBlockhash();
+        transaction.recentBlockhash = blockhash;
+        transaction.lastValidBlockHeight = lastValidBlockHeight;
+        transaction.feePayer = sender;
 
-        const resp = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/claimed/${response}`
+        const signedTransaction = await wallet.signTransaction(transaction);
+
+        const serializedTransaction = signedTransaction.serialize({
+          requireAllSignatures: true,
+        });
+
+        console.log(
+          "serializedTransaction==",
+          serializedTransaction.toString("base64")
         );
-        console.log("resp==", resp.data);
+
+        const response = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/submit-transaction`,
+          {
+            transaction: serializedTransaction.toString("base64"), // Convert to base64
+          }
+        );
+
+        console.log("response==", response.data);
+
+        // const resp = await axios.get(
+        //   `${import.meta.env.VITE_BACKEND_URL}/claimed/${response}`
+        // );
+        // console.log("resp==", resp.data);
       }
     } catch (error) {
       //@ts-ignore
@@ -416,7 +447,10 @@ const Admin = (_props: Props) => {
               }}
               onChange={(e) => setClaimRateForLaunchDay(e.target.value)}
             />
-            <CapitalButton variant="contained" onClick={updateClaimRateWhenLaunchDay}>
+            <CapitalButton
+              variant="contained"
+              onClick={updateClaimRateWhenLaunchDay}
+            >
               update claim rate when launch day
             </CapitalButton>
           </Grid>
@@ -441,10 +475,17 @@ const Admin = (_props: Props) => {
       <>
         <Divider sx={{ my: 2 }} />
         {provider && (
-          <Grid container spacing={2} flexDirection={"column"} alignItems={"center"}>
+          <Grid
+            container
+            spacing={2}
+            flexDirection={"column"}
+            alignItems={"center"}
+          >
             <Grid item>
               <Grid container alignItems={"center"}>
-                <Typography variant="h6" mr={3}>Launch Day:</Typography>
+                <Typography variant="h6" mr={3}>
+                  Launch Day:
+                </Typography>
                 {fetching ? (
                   <Skeleton width={30} />
                 ) : (
@@ -454,7 +495,9 @@ const Admin = (_props: Props) => {
             </Grid>
             <Grid item>
               <Grid container alignItems={"center"}>
-                <Typography variant="h6" mr={3}>Claim Period:</Typography>
+                <Typography variant="h6" mr={3}>
+                  Claim Period:
+                </Typography>
                 {fetching ? (
                   <Skeleton width={30} />
                 ) : (
@@ -464,7 +507,9 @@ const Admin = (_props: Props) => {
             </Grid>
             <Grid item>
               <Grid container alignItems={"center"}>
-                <Typography variant="h6" mr={3}>Claim Rate when LaunchDay:</Typography>
+                <Typography variant="h6" mr={3}>
+                  Claim Rate when LaunchDay:
+                </Typography>
                 {fetching ? (
                   <Skeleton width={30} />
                 ) : (
@@ -474,7 +519,9 @@ const Admin = (_props: Props) => {
             </Grid>
             <Grid item>
               <Grid container alignItems={"center"}>
-                <Typography variant="h6" mr={3}>Claim Rate per Days:</Typography>
+                <Typography variant="h6" mr={3}>
+                  Claim Rate per Days:
+                </Typography>
                 {fetching ? (
                   <Skeleton width={30} />
                 ) : (
