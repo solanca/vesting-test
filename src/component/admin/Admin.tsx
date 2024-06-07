@@ -344,7 +344,7 @@ const Admin = (_props: Props) => {
         transaction.add(txInstruction);
         transaction.add(PRIORITY_FEE_IX);
         const { blockhash, lastValidBlockHeight } =
-          await connection.getLatestBlockhash();
+          await connection.getLatestBlockhash("finalized");
         transaction.recentBlockhash = blockhash;
         transaction.lastValidBlockHeight = lastValidBlockHeight;
         transaction.feePayer = sender;
