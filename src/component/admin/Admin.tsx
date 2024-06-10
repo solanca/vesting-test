@@ -315,8 +315,8 @@ const Admin = (_props: Props) => {
 
       //@ts-ignore
       if (res.data) {
-        console.log("res==", res.data.pixiz);
-        let allocatedTokens = new BN(res.data.pixiz);
+        console.log("res==", res.data.total);
+        let allocatedTokens = new BN(res.data.total);
         let claimedTokens = new BN(res.data.claimedTokens);
         let lastClaimTime = new BN(res.data.lastClaimTime);
 
