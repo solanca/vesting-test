@@ -4,6 +4,7 @@ import { web3, BN, utils } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddress,
   // createMint,
   // getOrCreateAssociatedTokenAccount,
@@ -29,7 +30,7 @@ import axios from "axios";
 
 type Props = {};
 
-const tokenMint = new PublicKey("FZ5bAZV3EDas8jbzaWDfQb46ESu6ah48fa8Msjgsh3CZ");
+const tokenMint = new PublicKey(import.meta.env.VITE_TOKEN_MINT);
 
 const CapitalButton = styled(Button)(() => ({
   textTransform: "capitalize",
@@ -58,6 +59,7 @@ const Admin = (_props: Props) => {
 
   const [rateForLaunchDay, setRateForLaunchDay] = useState<number>(0);
   const [ratePerDays, setRatePerDays] = useState<number>(0);
+  const [addAmount, setAddAmount] = useState<number>(500);
 
   const wallet = useAnchorWallet();
 
@@ -82,33 +84,145 @@ const Admin = (_props: Props) => {
     //@ts-ignore
 
     try {
-      setLoading(true);
-      await program?.methods
-        .initialize(
-          // Array.from(Buffer.from(merkleRoot, "hex")),
-          new BN(amount),
-          new BN(9),
-          new BN(Math.floor(Date.now() / 1000)),
-          new BN(60 * 60 * 24 * 7), //a week
-          new BN(15), //15%
-          new BN(3) //3%
-        )
-        .accounts({
-          dataAccount: dataAccount as any,
-          escrowWallet: escrowWalletPda as any,
-          walletToWithdrawFrom: new PublicKey(
-            "885FvmgbycQ2RYbggjzqYD6rzZsdVM4ZWFArSoneKvb7"
-          ),
-          tokenMint: tokenMint,
-          sender: sender,
-          systemProgram: web3.SystemProgram.programId,
-          tokenProgram: utils.token.TOKEN_PROGRAM_ID,
-          //@ts-ignore
-        })
-        .rpc();
+      if (sender) {
+        setLoading(true);
 
-      console.log("Greeting account created!");
-      await handleFetch();
+        const [walletToWithdrawFrom] = PublicKey.findProgramAddressSync(
+          [
+            sender.toBuffer(),
+            TOKEN_2022_PROGRAM_ID.toBuffer(),
+            tokenMint.toBuffer(),
+          ],
+          ASSOCIATED_TOKEN_PROGRAM_ID
+        );
+
+        console.log(
+          "tokenAccount==",
+          walletToWithdrawFrom.toBase58(),
+          sender.toBase58()
+        );
+        await program?.methods
+          .initialize(
+            // Array.from(Buffer.from(merkleRoot, "hex")),
+            new BN(amount),
+            new BN(9),
+            new BN(Math.floor(Date.now() / 1000)),
+            new BN(60 * 60 * 24 * 7), //a week
+            new BN(15), //15%
+            new BN(3) //3%
+          )
+          .accounts({
+            dataAccount: dataAccount as any,
+            escrowWallet: escrowWalletPda as any,
+            walletToWithdrawFrom,
+            tokenMint: tokenMint,
+            sender: sender,
+            systemProgram: web3.SystemProgram.programId,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+
+            //@ts-ignore
+          })
+          .rpc();
+
+        console.log("Greeting account created!");
+        await handleFetch();
+      }
+    } catch (error) {
+      //@ts-ignore
+      toast.error(error.message);
+      console.error("Error creating greeting account:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const addFunds = async () => {
+    if (!connected && !program && !dataAccount && !escrowWalletPda) {
+      return;
+    }
+
+    //@ts-ignore
+
+    try {
+      if (sender) {
+        setLoading(true);
+
+        const [walletToWithdrawFrom] = PublicKey.findProgramAddressSync(
+          [
+            sender.toBuffer(),
+            TOKEN_2022_PROGRAM_ID.toBuffer(),
+            tokenMint.toBuffer(),
+          ],
+          ASSOCIATED_TOKEN_PROGRAM_ID
+        );
+
+        console.log(
+          "tokenAccount==",
+          walletToWithdrawFrom.toBase58(),
+          sender.toBase58()
+        );
+        const tx = await program?.methods
+          .addFunds(dataBump as number, escrowBump as number, new BN(addAmount))
+          .accounts({
+            escrowWallet: escrowWalletPda as any,
+            walletToWithdrawFrom,
+            tokenMint: tokenMint,
+            sender: sender,
+            systemProgram: web3.SystemProgram.programId,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+
+            //@ts-ignore
+          })
+          .rpc();
+
+        console.log("tx====", tx);
+        await handleFetch();
+      }
+    } catch (error) {
+      //@ts-ignore
+      toast.error(error.message);
+      console.error("Error creating greeting account:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleWithdraw = async () => {
+    if (!connected && !program && !dataAccount && !escrowWalletPda) {
+      return;
+    }
+
+    //@ts-ignore
+
+    try {
+      if (sender) {
+        setLoading(true);
+
+        const [walletToWithdrawFrom] = PublicKey.findProgramAddressSync(
+          [
+            sender.toBuffer(),
+            TOKEN_2022_PROGRAM_ID.toBuffer(),
+            tokenMint.toBuffer(),
+          ],
+          ASSOCIATED_TOKEN_PROGRAM_ID
+        );
+
+        const tx = await program?.methods
+          .withdraw(dataBump as number, escrowBump as number)
+          .accounts({
+            dataAccount: dataAccount as PublicKey,
+            escrowWallet: escrowWalletPda as any,
+            walletToWithdrawFrom,
+            tokenMint: tokenMint,
+            sender: sender,
+            systemProgram: web3.SystemProgram.programId,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+
+            //@ts-ignore
+          })
+          .rpc();
+
+        console.log("tx====", tx);
+        await handleFetch();
+      }
     } catch (error) {
       //@ts-ignore
       toast.error(error.message);
@@ -212,7 +326,6 @@ const Admin = (_props: Props) => {
       //@ts-ignore
       var newDate = new Date(day);
       // var newDate = new Date( tempDay[2], tempDay[1] - 1, tempDay[0]);
-      console.log("newdata==", newDate.getTime() / 1000);
       let unixTime = newDate.getTime() / 1000;
       // console.log(newDate.getTime());
       //@ts-ignore
@@ -246,6 +359,7 @@ const Admin = (_props: Props) => {
       console.log("ress===", res);
       await handleFetch();
     } catch (error) {
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -301,12 +415,20 @@ const Admin = (_props: Props) => {
       //   ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 100 })
       // );
       if (!sender || !provider || !program || !connection) return;
-      const associatedTokenAddress = await getAssociatedTokenAddress(
-        tokenMint,
-        sender
-        // true,
+      // const associatedTokenAddress = await getAssociatedTokenAddress(
+      //   tokenMint,
+      //   sender
+      //   // true,
 
-        // ASSOCIATED_TOKEN_PROGRAM_ID
+      //   // ASSOCIATED_TOKEN_PROGRAM_ID
+      // );
+      const [associatedTokenAddress] = PublicKey.findProgramAddressSync(
+        [
+          sender.toBuffer(),
+          TOKEN_2022_PROGRAM_ID.toBuffer(),
+          tokenMint.toBuffer(),
+        ],
+        ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
       const res = await axios.get(
@@ -315,8 +437,8 @@ const Admin = (_props: Props) => {
 
       //@ts-ignore
       if (res.data) {
-        console.log("res==", res.data.total);
-        let allocatedTokens = new BN(res.data.total);
+        console.log("res==", res.data.pixiz);
+        let allocatedTokens = new BN(res.data.pixiz);
         let claimedTokens = new BN(res.data.claimedTokens);
         let lastClaimTime = new BN(res.data.lastClaimTime);
 
@@ -336,7 +458,7 @@ const Admin = (_props: Props) => {
             tokenMint: tokenMint,
             walletToDepositTo: associatedTokenAddress,
             systemProgram: web3.SystemProgram.programId,
-            tokenProgram: utils.token.TOKEN_PROGRAM_ID,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
             associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           })
           .instruction();
@@ -470,6 +592,25 @@ const Admin = (_props: Props) => {
               update claim rate per days
             </CapitalButton>
           </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container columnGap={2}>
+            <TextField
+              value={addAmount}
+              type="number"
+              // sx={{ width: "20ch" }}
+
+              onChange={(e) => setAddAmount(Number(e.target.value))}
+            />
+            <CapitalButton variant="contained" onClick={addFunds}>
+              AddAmount
+            </CapitalButton>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <CapitalButton variant="contained" onClick={handleWithdraw}>
+            withdraw
+          </CapitalButton>
         </Grid>
       </Grid>
       <>

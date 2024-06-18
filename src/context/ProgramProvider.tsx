@@ -5,6 +5,7 @@ import { Vesting } from "../anchor/idl";
 import idl from "../anchor/vesting.json";
 import { AnchorProvider, Program } from "@project-serum/anchor";
 import { ProgramContext } from "./AnchorContext";
+import { TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 
 const ProgramProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -24,9 +25,7 @@ const ProgramProvider: React.FC<{ children: React.ReactNode }> = ({
   const wallet = useAnchorWallet();
   const programID = new PublicKey(`${import.meta.env.VITE_PROGRAM_ID}`);
   // console.log('pubkey==',programID.toBase58())
-  const tokenMint = new PublicKey(
-    "FZ5bAZV3EDas8jbzaWDfQb46ESu6ah48fa8Msjgsh3CZ"
-  );
+  const tokenMint = new PublicKey(import.meta.env.VITE_TOKEN_MINT);
 
   useEffect(() => {
     const setupProgram = async () => {
@@ -39,7 +38,7 @@ const ProgramProvider: React.FC<{ children: React.ReactNode }> = ({
         [Buffer.from("data_account"), tokenMint.toBuffer()],
         program.programId
       );
-      const [escrowWalletPda, escrowBump] = await PublicKey.findProgramAddress(
+      const [escrowWalletPda, escrowBump] = PublicKey.findProgramAddressSync(
         [Buffer.from("escrow_wallet"), tokenMint.toBuffer()],
         program.programId
       );
