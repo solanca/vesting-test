@@ -4,6 +4,7 @@ import { web3, BN, utils } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddress,
   // createMint,
   // getOrCreateAssociatedTokenAccount,
@@ -29,7 +30,7 @@ import axios from "axios";
 
 type Props = {};
 
-const tokenMint = new PublicKey("FZ5bAZV3EDas8jbzaWDfQb46ESu6ah48fa8Msjgsh3CZ");
+const tokenMint = new PublicKey(import.meta.env.VITE_TOKEN_MINT);
 
 const CapitalButton = styled(Button)(() => ({
   textTransform: "capitalize",
@@ -58,6 +59,7 @@ const Admin = (_props: Props) => {
 
   const [rateForLaunchDay, setRateForLaunchDay] = useState<number>(0);
   const [ratePerDays, setRatePerDays] = useState<number>(0);
+  const [addAmount, setAddAmount] = useState<number>(500);
 
   const wallet = useAnchorWallet();
 
@@ -79,36 +81,36 @@ const Admin = (_props: Props) => {
       return;
     }
 
-    //@ts-ignore
-
     try {
-      setLoading(true);
-      await program?.methods
-        .initialize(
-          // Array.from(Buffer.from(merkleRoot, "hex")),
-          new BN(amount),
-          new BN(9),
-          new BN(Math.floor(Date.now() / 1000)),
-          new BN(60 * 60 * 24 * 7), //a week
-          new BN(15), //15%
-          new BN(3) //3%
-        )
-        .accounts({
-          dataAccount: dataAccount as any,
-          escrowWallet: escrowWalletPda as any,
-          walletToWithdrawFrom: new PublicKey(
-            "885FvmgbycQ2RYbggjzqYD6rzZsdVM4ZWFArSoneKvb7"
-          ),
-          tokenMint: tokenMint,
-          sender: sender,
-          systemProgram: web3.SystemProgram.programId,
-          tokenProgram: utils.token.TOKEN_PROGRAM_ID,
-          //@ts-ignore
-        })
-        .rpc();
+      if (sender) {
+        setLoading(true);
 
-      console.log("Greeting account created!");
-      await handleFetch();
+        const walletToWithdrawFrom = await getAssociatedTokenAddress(
+          tokenMint,
+          sender
+        );
+
+        const tx = await program?.methods
+          .initialize(
+            new BN(amount),
+            new BN(9),
+            new BN(Math.floor(Date.now() / 1000)),
+            new BN(60 * 60 * 24 * 7), //a week
+            new BN(15), //15%
+            new BN(3) //3%
+          )
+          .accounts({
+            dataAccount: dataAccount as any,
+            escrowWallet: escrowWalletPda as any,
+            walletToWithdrawFrom,
+            tokenMint: tokenMint,
+            sender: sender,
+          })
+          .rpc();
+
+        console.log("tx==", tx);
+        await handleFetch();
+      }
     } catch (error) {
       //@ts-ignore
       toast.error(error.message);
@@ -117,67 +119,74 @@ const Admin = (_props: Props) => {
       setLoading(false);
     }
   };
+  const addFunds = async () => {
+    if (!connected && !program && !dataAccount && !escrowWalletPda) {
+      return;
+    }
+    try {
+      if (sender) {
+        setLoading(true);
 
-  // const handleMint = async () => {
-  //   if (!wallet || !wallet.publicKey) {
-  //     console.error("Wallet not connected");
-  //     return;
-  //   }
+        const walletToWithdrawFrom = await getAssociatedTokenAddress(
+          tokenMint,
+          sender
+        );
 
-  //   // Initialize connection to the devnet
-  //   const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+        const tx = await program?.methods
+          .addFunds(dataBump as number, escrowBump as number, new BN(addAmount))
+          .accounts({
+            escrowWallet: escrowWalletPda as any,
+            walletToWithdrawFrom,
+            tokenMint: tokenMint,
+            sender: sender,
+          })
+          .rpc();
 
-  //   // Use the connected wallet as the payer
-  //   // const payer = wallet_p.wallet;
-  //   const secret = [
-  //     4, 203, 170, 140, 52, 111, 194, 79, 184, 206, 170, 25, 182, 108, 154, 75,
-  //     251, 39, 109, 71, 204, 249, 137, 240, 47, 92, 5, 61, 247, 48, 183, 151,
-  //     152, 91, 68, 24, 87, 160, 224, 30, 240, 38, 70, 237, 131, 147, 128, 232,
-  //     21, 89, 248, 148, 251, 123, 115, 191, 129, 24, 99, 200, 72, 8, 202, 5,
-  //   ];
+        console.log("tx====", tx);
+        await handleFetch();
+      }
+    } catch (error) {
+      //@ts-ignore
+      toast.error(error.message);
+      console.error("Error creating greeting account:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleWithdraw = async () => {
+    if (!connected && !program && !dataAccount && !escrowWalletPda) {
+      return;
+    }
+    try {
+      if (sender) {
+        setLoading(true);
+        const walletToWithdrawFrom = await getAssociatedTokenAddress(
+          tokenMint,
+          sender
+        );
 
-  //   const payer = Keypair.fromSecretKey(new Uint8Array(secret));
+        const tx = await program?.methods
+          .withdraw(dataBump as number, escrowBump as number)
+          .accounts({
+            dataAccount: dataAccount as PublicKey,
+            escrowWallet: escrowWalletPda as any,
+            walletToWithdrawFrom,
+            tokenMint: tokenMint,
+            sender: sender,
+          })
+          .rpc();
 
-  //   const mintAuthority = wallet; // Use the wallet as the mint authority
-  //   const freezeAuthority = null; // Set to null if not needed
-  //   const mint = await createMint(
-  //     connection,
-  //     payer,
-  //     mintAuthority.publicKey,
-  //     null,
-  //     9 // Decimals
-  //   );
-
-  //   console.log("Token Mint Public Key:", mint.toBase58());
-
-  //   // Get or create the associated token account for the initializer (wallet)
-  //   const initializerTokenAccount = await getOrCreateAssociatedTokenAccount(
-  //     connection,
-  //     payer,
-  //     mint,
-  //     payer.publicKey
-  //   );
-
-  //   console.log(
-  //     "Initializer Token Account:",
-  //     initializerTokenAccount.address.toBase58()
-  //   );
-
-  //   // Mint some tokens to the initializer's token account
-  //   const signature = await mintTo(
-  //     connection,
-  //     payer,
-  //     mint,
-  //     initializerTokenAccount.address,
-  //     mintAuthority.publicKey,
-  //     1000000000000000 // Amount to mint (adjust as needed)
-  //   );
-
-  //   console.log(
-  //     "Minted tokens to the initializer's token account, signature:",
-  //     signature
-  //   );
-  // };
+        console.log("tx====", tx);
+        await handleFetch();
+      }
+    } catch (error) {
+      //@ts-ignore
+      toast.error(error.message);
+      console.error("Error creating greeting account:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFetch = async () => {
     if (!program) return;
@@ -189,14 +198,10 @@ const Admin = (_props: Props) => {
 
       console.log("info==", info, new PublicKey(info.escrowWallet).toBase58());
 
-      // setRecipients(info.beneficiaries as BeneficiariesType[]);
-
-      // console.log("info==", info.nowTime.toNumber());
       setLaunchDay(unixTimestampToDatetimeLocal(info.launchDay.toNumber()));
       setClaimPeriod(info.claimPeriod.toNumber() / (60 * 60 * 24));
       setRateForLaunchDay(info.claimRateForLaunchDay);
       setRatePerDays(info.claimRatePerDays);
-      // console.log("info==", escrowWalletPda?.toBase58(),escrowWalletInfo);
     } catch (error) {
       console.log("err==", error);
     } finally {
@@ -207,14 +212,10 @@ const Admin = (_props: Props) => {
   const updateLaunchDay = async () => {
     try {
       setLoading(true);
-      console.log("launchDay==", day);
 
       //@ts-ignore
       var newDate = new Date(day);
-      // var newDate = new Date( tempDay[2], tempDay[1] - 1, tempDay[0]);
-      console.log("newdata==", newDate.getTime() / 1000);
       let unixTime = newDate.getTime() / 1000;
-      // console.log(newDate.getTime());
       //@ts-ignore
       const res = await program.rpc.updateLaunchDay(new BN(unixTime), {
         accounts: {
@@ -246,6 +247,7 @@ const Admin = (_props: Props) => {
       console.log("ress===", res);
       await handleFetch();
     } catch (error) {
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -297,16 +299,10 @@ const Admin = (_props: Props) => {
       const PRIORITY_FEE_IX = ComputeBudgetProgram.setComputeUnitPrice({
         microLamports: PRIORITY_RATE,
       });
-      // transaction.add(
-      //   ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 100 })
-      // );
       if (!sender || !provider || !program || !connection) return;
-      const associatedTokenAddress = await getAssociatedTokenAddress(
+      const walletToDepositTo = await getAssociatedTokenAddress(
         tokenMint,
         sender
-        // true,
-
-        // ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
       const res = await axios.get(
@@ -315,8 +311,8 @@ const Admin = (_props: Props) => {
 
       //@ts-ignore
       if (res.data) {
-        console.log("res==", res.data.total);
-        let allocatedTokens = new BN(res.data.total);
+        console.log("res==", res.data.pixiz);
+        let allocatedTokens = new BN(res.data.pixiz);
         let claimedTokens = new BN(res.data.claimedTokens);
         let lastClaimTime = new BN(res.data.lastClaimTime);
 
@@ -334,13 +330,12 @@ const Admin = (_props: Props) => {
             escrowWallet: escrowWalletPda as any,
             sender: sender,
             tokenMint: tokenMint,
-            walletToDepositTo: associatedTokenAddress,
-            systemProgram: web3.SystemProgram.programId,
-            tokenProgram: utils.token.TOKEN_PROGRAM_ID,
-            associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+            walletToDepositTo,
+            // systemProgram: web3.SystemProgram.programId,
+            // tokenProgram: TOKEN_2022_PROGRAM_ID,
+            // associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
           })
           .instruction();
-        console.log("txInstruction==", txInstruction);
         transaction.add(txInstruction);
         transaction.add(PRIORITY_FEE_IX);
         const { blockhash, lastValidBlockHeight } =
@@ -366,13 +361,7 @@ const Admin = (_props: Props) => {
             transaction: serializedTransaction.toString("base64"), // Convert to base64
           }
         );
-
         console.log("response==", response.data);
-
-        // const resp = await axios.get(
-        //   `${import.meta.env.VITE_BACKEND_URL}/claimed/${response}`
-        // );
-        // console.log("resp==", resp.data);
       }
     } catch (error) {
       //@ts-ignore
@@ -470,6 +459,25 @@ const Admin = (_props: Props) => {
               update claim rate per days
             </CapitalButton>
           </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container columnGap={2}>
+            <TextField
+              value={addAmount}
+              type="number"
+              // sx={{ width: "20ch" }}
+
+              onChange={(e) => setAddAmount(Number(e.target.value))}
+            />
+            <CapitalButton variant="contained" onClick={addFunds}>
+              AddAmount
+            </CapitalButton>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <CapitalButton variant="contained" onClick={handleWithdraw}>
+            withdraw
+          </CapitalButton>
         </Grid>
       </Grid>
       <>

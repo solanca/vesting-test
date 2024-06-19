@@ -24,9 +24,7 @@ const ProgramProvider: React.FC<{ children: React.ReactNode }> = ({
   const wallet = useAnchorWallet();
   const programID = new PublicKey(`${import.meta.env.VITE_PROGRAM_ID}`);
   // console.log('pubkey==',programID.toBase58())
-  const tokenMint = new PublicKey(
-    "FZ5bAZV3EDas8jbzaWDfQb46ESu6ah48fa8Msjgsh3CZ"
-  );
+  const tokenMint = new PublicKey(import.meta.env.VITE_TOKEN_MINT);
 
   useEffect(() => {
     const setupProgram = async () => {
