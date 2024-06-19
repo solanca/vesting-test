@@ -4,7 +4,6 @@ import { web3, BN, utils } from "@project-serum/anchor";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_2022_PROGRAM_ID,
   getAssociatedTokenAddress,
   // createMint,
   // getOrCreateAssociatedTokenAccount,
@@ -459,6 +458,25 @@ const Admin = (_props: Props) => {
               update claim rate per days
             </CapitalButton>
           </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container columnGap={2}>
+            <TextField
+              value={addAmount}
+              type="number"
+              // sx={{ width: "20ch" }}
+
+              onChange={(e) => setAddAmount(Number(e.target.value))}
+            />
+            <CapitalButton variant="contained" onClick={addFunds}>
+              AddAmount
+            </CapitalButton>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <CapitalButton variant="contained" onClick={handleWithdraw}>
+            withdraw
+          </CapitalButton>
         </Grid>
         <Grid item>
           <Grid container columnGap={2}>

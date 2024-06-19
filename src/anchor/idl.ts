@@ -5,382 +5,127 @@ export type Vesting = {
     {
       name: "initialize";
       accounts: [
-        {
-          name: "dataAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "escrowWallet";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "walletToWithdrawFrom";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "tokenMint";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "sender";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        }
+        { name: "dataAccount"; isMut: true; isSigner: false },
+        { name: "escrowWallet"; isMut: true; isSigner: false },
+        { name: "walletToWithdrawFrom"; isMut: true; isSigner: false },
+        { name: "tokenMint"; isMut: false; isSigner: false },
+        { name: "sender"; isMut: true; isSigner: true },
+        { name: "systemProgram"; isMut: false; isSigner: false },
+        { name: "tokenProgram"; isMut: false; isSigner: false }
       ];
       args: [
-        {
-          name: "amount";
-          type: "u64";
-        },
-        {
-          name: "decimals";
-          type: "u8";
-        },
-        {
-          name: "launchDay";
-          type: "i64";
-        },
-        {
-          name: "claimPeriod";
-          type: "i64";
-        },
-        {
-          name: "claimRateForLaunchDay";
-          type: "u8";
-        },
-        {
-          name: "claimRatePerDays";
-          type: "u8";
-        }
+        { name: "amount"; type: "u64" },
+        { name: "decimals"; type: "u8" },
+        { name: "launchDay"; type: "i64" },
+        { name: "claimPeriod"; type: "i64" },
+        { name: "claimRateForLaunchDay"; type: "u8" },
+        { name: "claimRatePerDays"; type: "u8" }
       ];
     },
     {
       name: "updateLaunchDay";
       accounts: [
-        {
-          name: "dataAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "initializer";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "tokenMint";
-          isMut: false;
-          isSigner: false;
-        }
+        { name: "dataAccount"; isMut: true; isSigner: false },
+        { name: "initializer"; isMut: true; isSigner: true },
+        { name: "tokenMint"; isMut: false; isSigner: false }
       ];
-      args: [
-        {
-          name: "newLaunchDay";
-          type: "i64";
-        }
-      ];
+      args: [{ name: "newLaunchDay"; type: "i64" }];
     },
     {
       name: "updateClaimPeriod";
       accounts: [
-        {
-          name: "dataAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "initializer";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "tokenMint";
-          isMut: false;
-          isSigner: false;
-        }
+        { name: "dataAccount"; isMut: true; isSigner: false },
+        { name: "initializer"; isMut: true; isSigner: true },
+        { name: "tokenMint"; isMut: false; isSigner: false }
       ];
-      args: [
-        {
-          name: "newClaimPeriod";
-          type: "i64";
-        }
-      ];
+      args: [{ name: "newClaimPeriod"; type: "i64" }];
     },
     {
       name: "updateClaimRatePerDays";
       accounts: [
-        {
-          name: "dataAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "initializer";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "tokenMint";
-          isMut: false;
-          isSigner: false;
-        }
+        { name: "dataAccount"; isMut: true; isSigner: false },
+        { name: "initializer"; isMut: true; isSigner: true },
+        { name: "tokenMint"; isMut: false; isSigner: false }
       ];
-      args: [
-        {
-          name: "newClaimRate";
-          type: "u8";
-        }
-      ];
+      args: [{ name: "newClaimRate"; type: "u8" }];
     },
     {
       name: "updateClaimRateForLaunchday";
       accounts: [
-        {
-          name: "dataAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "initializer";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "tokenMint";
-          isMut: false;
-          isSigner: false;
-        }
+        { name: "dataAccount"; isMut: true; isSigner: false },
+        { name: "initializer"; isMut: true; isSigner: true },
+        { name: "tokenMint"; isMut: false; isSigner: false }
       ];
-      args: [
-        {
-          name: "newClaimRate";
-          type: "u8";
-        }
-      ];
+      args: [{ name: "newClaimRate"; type: "u8" }];
     },
     {
       name: "claim";
       accounts: [
-        {
-          name: "dataAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "escrowWallet";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "sender";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "tokenMint";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "walletToDepositTo";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "associatedTokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        }
+        { name: "dataAccount"; isMut: true; isSigner: false },
+        { name: "escrowWallet"; isMut: true; isSigner: false },
+        { name: "sender"; isMut: true; isSigner: true },
+        { name: "tokenMint"; isMut: false; isSigner: false },
+        { name: "walletToDepositTo"; isMut: true; isSigner: false },
+        { name: "associatedTokenProgram"; isMut: false; isSigner: false },
+        { name: "tokenProgram"; isMut: false; isSigner: false },
+        { name: "systemProgram"; isMut: false; isSigner: false }
       ];
       args: [
-        {
-          name: "dataBump";
-          type: "u8";
-        },
-        {
-          name: "walletBump";
-          type: "u8";
-        },
-        {
-          name: "allocatedTokens";
-          type: "u64";
-        },
-        {
-          name: "claimedTokens";
-          type: "u64";
-        },
-        {
-          name: "lastClaimTime";
-          type: "i64";
-        }
+        { name: "dataBump"; type: "u8" },
+        { name: "walletBump"; type: "u8" },
+        { name: "allocatedTokens"; type: "u64" },
+        { name: "claimedTokens"; type: "u64" },
+        { name: "lastClaimTime"; type: "i64" }
       ];
     },
     {
       name: "addFunds";
       accounts: [
-        {
-          name: "walletToWithdrawFrom";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "escrowWallet";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "sender";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "tokenMint";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        }
+        { name: "walletToWithdrawFrom"; isMut: true; isSigner: false },
+        { name: "escrowWallet"; isMut: true; isSigner: false },
+        { name: "sender"; isMut: true; isSigner: true },
+        { name: "tokenMint"; isMut: false; isSigner: false },
+        { name: "systemProgram"; isMut: false; isSigner: false },
+        { name: "tokenProgram"; isMut: false; isSigner: false }
       ];
       args: [
-        {
-          name: "dataBump";
-          type: "u8";
-        },
-        {
-          name: "walletBump";
-          type: "u8";
-        },
-        {
-          name: "amount";
-          type: "u64";
-        }
+        { name: "dataBump"; type: "u8" },
+        { name: "walletBump"; type: "u8" },
+        { name: "amount"; type: "u64" }
       ];
     },
     {
       name: "withdraw";
       accounts: [
-        {
-          name: "dataAccount";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "walletToWithdrawFrom";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "escrowWallet";
-          isMut: true;
-          isSigner: false;
-        },
-        {
-          name: "sender";
-          isMut: true;
-          isSigner: true;
-        },
-        {
-          name: "tokenMint";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "systemProgram";
-          isMut: false;
-          isSigner: false;
-        },
-        {
-          name: "tokenProgram";
-          isMut: false;
-          isSigner: false;
-        }
+        { name: "dataAccount"; isMut: true; isSigner: false },
+        { name: "walletToWithdrawFrom"; isMut: true; isSigner: false },
+        { name: "escrowWallet"; isMut: true; isSigner: false },
+        { name: "sender"; isMut: true; isSigner: true },
+        { name: "tokenMint"; isMut: false; isSigner: false },
+        { name: "systemProgram"; isMut: false; isSigner: false },
+        { name: "tokenProgram"; isMut: false; isSigner: false }
       ];
       args: [
-        {
-          name: "dataBump";
-          type: "u8";
-        },
-        {
-          name: "walletBump";
-          type: "u8";
-        }
+        { name: "dataBump"; type: "u8" },
+        { name: "walletBump"; type: "u8" }
       ];
     }
   ];
   accounts: [
     {
-      name: "dataAccount";
+      name: "DataAccount";
       type: {
         kind: "struct";
         fields: [
-          {
-            name: "tokenAmount";
-            type: "u64";
-          },
-          {
-            name: "initializer";
-            type: "publicKey";
-          },
-          {
-            name: "escrowWallet";
-            type: "publicKey";
-          },
-          {
-            name: "tokenMint";
-            type: "publicKey";
-          },
-          {
-            name: "decimals";
-            type: "u8";
-          },
-          {
-            name: "launchDay";
-            type: "i64";
-          },
-          {
-            name: "claimPeriod";
-            type: "i64";
-          },
-          {
-            name: "claimRateForLaunchDay";
-            type: "u8";
-          },
-          {
-            name: "claimRatePerDays";
-            type: "u8";
-          }
+          { name: "tokenAmount"; type: "u64" },
+          { name: "initializer"; type: "publicKey" },
+          { name: "escrowWallet"; type: "publicKey" },
+          { name: "tokenMint"; type: "publicKey" },
+          { name: "decimals"; type: "u8" },
+          { name: "launchDay"; type: "i64" },
+          { name: "claimPeriod"; type: "i64" },
+          { name: "claimRateForLaunchDay"; type: "u8" },
+          { name: "claimRatePerDays"; type: "u8" }
         ];
       };
     }
@@ -408,7 +153,6 @@ export type Vesting = {
     }
   ];
 };
-
 export const IDL: Vesting = {
   version: "0.1.0",
   name: "vesting",
@@ -416,382 +160,127 @@ export const IDL: Vesting = {
     {
       name: "initialize",
       accounts: [
-        {
-          name: "dataAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "escrowWallet",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "walletToWithdrawFrom",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "tokenMint",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "sender",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+        { name: "dataAccount", isMut: true, isSigner: false },
+        { name: "escrowWallet", isMut: true, isSigner: false },
+        { name: "walletToWithdrawFrom", isMut: true, isSigner: false },
+        { name: "tokenMint", isMut: false, isSigner: false },
+        { name: "sender", isMut: true, isSigner: true },
+        { name: "systemProgram", isMut: false, isSigner: false },
+        { name: "tokenProgram", isMut: false, isSigner: false },
       ],
       args: [
-        {
-          name: "amount",
-          type: "u64",
-        },
-        {
-          name: "decimals",
-          type: "u8",
-        },
-        {
-          name: "launchDay",
-          type: "i64",
-        },
-        {
-          name: "claimPeriod",
-          type: "i64",
-        },
-        {
-          name: "claimRateForLaunchDay",
-          type: "u8",
-        },
-        {
-          name: "claimRatePerDays",
-          type: "u8",
-        },
+        { name: "amount", type: "u64" },
+        { name: "decimals", type: "u8" },
+        { name: "launchDay", type: "i64" },
+        { name: "claimPeriod", type: "i64" },
+        { name: "claimRateForLaunchDay", type: "u8" },
+        { name: "claimRatePerDays", type: "u8" },
       ],
     },
     {
       name: "updateLaunchDay",
       accounts: [
-        {
-          name: "dataAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "initializer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "tokenMint",
-          isMut: false,
-          isSigner: false,
-        },
+        { name: "dataAccount", isMut: true, isSigner: false },
+        { name: "initializer", isMut: true, isSigner: true },
+        { name: "tokenMint", isMut: false, isSigner: false },
       ],
-      args: [
-        {
-          name: "newLaunchDay",
-          type: "i64",
-        },
-      ],
+      args: [{ name: "newLaunchDay", type: "i64" }],
     },
     {
       name: "updateClaimPeriod",
       accounts: [
-        {
-          name: "dataAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "initializer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "tokenMint",
-          isMut: false,
-          isSigner: false,
-        },
+        { name: "dataAccount", isMut: true, isSigner: false },
+        { name: "initializer", isMut: true, isSigner: true },
+        { name: "tokenMint", isMut: false, isSigner: false },
       ],
-      args: [
-        {
-          name: "newClaimPeriod",
-          type: "i64",
-        },
-      ],
+      args: [{ name: "newClaimPeriod", type: "i64" }],
     },
     {
       name: "updateClaimRatePerDays",
       accounts: [
-        {
-          name: "dataAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "initializer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "tokenMint",
-          isMut: false,
-          isSigner: false,
-        },
+        { name: "dataAccount", isMut: true, isSigner: false },
+        { name: "initializer", isMut: true, isSigner: true },
+        { name: "tokenMint", isMut: false, isSigner: false },
       ],
-      args: [
-        {
-          name: "newClaimRate",
-          type: "u8",
-        },
-      ],
+      args: [{ name: "newClaimRate", type: "u8" }],
     },
     {
       name: "updateClaimRateForLaunchday",
       accounts: [
-        {
-          name: "dataAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "initializer",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "tokenMint",
-          isMut: false,
-          isSigner: false,
-        },
+        { name: "dataAccount", isMut: true, isSigner: false },
+        { name: "initializer", isMut: true, isSigner: true },
+        { name: "tokenMint", isMut: false, isSigner: false },
       ],
-      args: [
-        {
-          name: "newClaimRate",
-          type: "u8",
-        },
-      ],
+      args: [{ name: "newClaimRate", type: "u8" }],
     },
     {
       name: "claim",
       accounts: [
-        {
-          name: "dataAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "escrowWallet",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "sender",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "tokenMint",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "walletToDepositTo",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "associatedTokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
+        { name: "dataAccount", isMut: true, isSigner: false },
+        { name: "escrowWallet", isMut: true, isSigner: false },
+        { name: "sender", isMut: true, isSigner: true },
+        { name: "tokenMint", isMut: false, isSigner: false },
+        { name: "walletToDepositTo", isMut: true, isSigner: false },
+        { name: "associatedTokenProgram", isMut: false, isSigner: false },
+        { name: "tokenProgram", isMut: false, isSigner: false },
+        { name: "systemProgram", isMut: false, isSigner: false },
       ],
       args: [
-        {
-          name: "dataBump",
-          type: "u8",
-        },
-        {
-          name: "walletBump",
-          type: "u8",
-        },
-        {
-          name: "allocatedTokens",
-          type: "u64",
-        },
-        {
-          name: "claimedTokens",
-          type: "u64",
-        },
-        {
-          name: "lastClaimTime",
-          type: "i64",
-        },
+        { name: "dataBump", type: "u8" },
+        { name: "walletBump", type: "u8" },
+        { name: "allocatedTokens", type: "u64" },
+        { name: "claimedTokens", type: "u64" },
+        { name: "lastClaimTime", type: "i64" },
       ],
     },
     {
       name: "addFunds",
       accounts: [
-        {
-          name: "walletToWithdrawFrom",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "escrowWallet",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "sender",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "tokenMint",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+        { name: "walletToWithdrawFrom", isMut: true, isSigner: false },
+        { name: "escrowWallet", isMut: true, isSigner: false },
+        { name: "sender", isMut: true, isSigner: true },
+        { name: "tokenMint", isMut: false, isSigner: false },
+        { name: "systemProgram", isMut: false, isSigner: false },
+        { name: "tokenProgram", isMut: false, isSigner: false },
       ],
       args: [
-        {
-          name: "dataBump",
-          type: "u8",
-        },
-        {
-          name: "walletBump",
-          type: "u8",
-        },
-        {
-          name: "amount",
-          type: "u64",
-        },
+        { name: "dataBump", type: "u8" },
+        { name: "walletBump", type: "u8" },
+        { name: "amount", type: "u64" },
       ],
     },
     {
       name: "withdraw",
       accounts: [
-        {
-          name: "dataAccount",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "walletToWithdrawFrom",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "escrowWallet",
-          isMut: true,
-          isSigner: false,
-        },
-        {
-          name: "sender",
-          isMut: true,
-          isSigner: true,
-        },
-        {
-          name: "tokenMint",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "systemProgram",
-          isMut: false,
-          isSigner: false,
-        },
-        {
-          name: "tokenProgram",
-          isMut: false,
-          isSigner: false,
-        },
+        { name: "dataAccount", isMut: true, isSigner: false },
+        { name: "walletToWithdrawFrom", isMut: true, isSigner: false },
+        { name: "escrowWallet", isMut: true, isSigner: false },
+        { name: "sender", isMut: true, isSigner: true },
+        { name: "tokenMint", isMut: false, isSigner: false },
+        { name: "systemProgram", isMut: false, isSigner: false },
+        { name: "tokenProgram", isMut: false, isSigner: false },
       ],
       args: [
-        {
-          name: "dataBump",
-          type: "u8",
-        },
-        {
-          name: "walletBump",
-          type: "u8",
-        },
+        { name: "dataBump", type: "u8" },
+        { name: "walletBump", type: "u8" },
       ],
     },
   ],
   accounts: [
     {
-      name: "dataAccount",
+      name: "DataAccount",
       type: {
         kind: "struct",
         fields: [
-          {
-            name: "tokenAmount",
-            type: "u64",
-          },
-          {
-            name: "initializer",
-            type: "publicKey",
-          },
-          {
-            name: "escrowWallet",
-            type: "publicKey",
-          },
-          {
-            name: "tokenMint",
-            type: "publicKey",
-          },
-          {
-            name: "decimals",
-            type: "u8",
-          },
-          {
-            name: "launchDay",
-            type: "i64",
-          },
-          {
-            name: "claimPeriod",
-            type: "i64",
-          },
-          {
-            name: "claimRateForLaunchDay",
-            type: "u8",
-          },
-          {
-            name: "claimRatePerDays",
-            type: "u8",
-          },
+          { name: "tokenAmount", type: "u64" },
+          { name: "initializer", type: "publicKey" },
+          { name: "escrowWallet", type: "publicKey" },
+          { name: "tokenMint", type: "publicKey" },
+          { name: "decimals", type: "u8" },
+          { name: "launchDay", type: "i64" },
+          { name: "claimPeriod", type: "i64" },
+          { name: "claimRateForLaunchDay", type: "u8" },
+          { name: "claimRatePerDays", type: "u8" },
         ],
       },
     },
