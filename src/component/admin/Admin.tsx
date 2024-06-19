@@ -171,7 +171,7 @@ const Admin = (_props: Props) => {
             escrowWallet: escrowWalletPda as any,
             walletToWithdrawFrom,
             tokenMint: tokenMint,
-            sender: sender,
+            initializer: sender,
           })
           .rpc();
 
@@ -458,25 +458,6 @@ const Admin = (_props: Props) => {
               update claim rate per days
             </CapitalButton>
           </Grid>
-        </Grid>
-        <Grid item>
-          <Grid container columnGap={2}>
-            <TextField
-              value={addAmount}
-              type="number"
-              // sx={{ width: "20ch" }}
-
-              onChange={(e) => setAddAmount(Number(e.target.value))}
-            />
-            <CapitalButton variant="contained" onClick={addFunds}>
-              AddAmount
-            </CapitalButton>
-          </Grid>
-        </Grid>
-        <Grid item>
-          <CapitalButton variant="contained" onClick={handleWithdraw}>
-            withdraw
-          </CapitalButton>
         </Grid>
         <Grid item>
           <Grid container columnGap={2}>
